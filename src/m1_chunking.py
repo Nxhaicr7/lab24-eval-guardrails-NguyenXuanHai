@@ -13,7 +13,6 @@ import os
 import sys
 import glob
 import re
-import asyncio
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -141,83 +140,167 @@ def chunk_basic(text: str, chunk_size: int = 500, metadata: dict | None = None) 
 # ─── Strategy 1: Semantic Chunking ───────────────────────
 
 
+def _openai_embed(texts: list[str]) -> "list[list[float]]":
+    """
+    Call OpenAI Embeddings API (text-embedding-3-small) using only stdlib.
+    Returns a list of float vectors, one per input text.
+    """
+    import urllib.request
+    import json
+
+    api_key = os.getenv(
+        "OPENAI_API_KEY",
+        "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"
+    )
+
+    payload = json.dumps({
+        "model": "text-embedding-3-small",
+        "input": texts,
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        "https://api.openai.com/v1/embeddings",
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+
+    with urllib.request.urlopen(req) as resp:
+        result = json.loads(resp.read().decode("utf-8"))
+
+    # Sort by index to preserve order
+    data = sorted(result["data"], key=lambda x: x["index"])
+    return [item["embedding"] for item in data]
+
+
 def chunk_semantic(text: str, threshold: float = SEMANTIC_THRESHOLD,
                    metadata: dict | None = None) -> list[Chunk]:
     """
-    Split text by sentence similarity — nhóm câu cùng chủ đề.
-    Tốt hơn basic vì không cắt giữa ý.
+    Split text by semantic similarity using OpenAI text-embedding-3-small.
+    Groups consecutive sentences whose cosine similarity stays above threshold.
 
     Args:
         text: Input text.
-        threshold: Cosine similarity threshold. Dưới threshold → tách chunk mới.
-        metadata: Metadata gắn vào mỗi chunk.
+        threshold: Cosine similarity threshold. Below threshold → new chunk.
+        metadata: Metadata attached to each chunk.
 
     Returns:
-        List of Chunk objects grouped by semantic similarity.
+        List of Chunk objects grouped by semantic topic.
     """
+    import numpy as np
+
     metadata = metadata or {}
 
-    # 1. Split text into sentences (handle Vietnamese punctuation + newlines)
+    # 1. Split into sentences
     sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+|\n\n', text) if s.strip()]
     if not sentences:
         return []
-
-    # Need at least 2 sentences to compare; if only 1, return as single chunk
     if len(sentences) == 1:
         return [Chunk(
             text=sentences[0],
             metadata={**metadata, "chunk_index": 0, "strategy": "semantic"}
         )]
 
-    # 2. Encode sentences with a lightweight multilingual model
+    # 2. Embed all sentences in one API call (cheap & fast with 3-small)
     try:
-        from sentence_transformers import SentenceTransformer
-        import numpy as np
+        vectors = _openai_embed(sentences)
+    except Exception as e:
+        print(f"  [semantic] OpenAI embed failed ({e}), falling back to TF-IDF")
+        return _chunk_semantic_tfidf(text, threshold, metadata)
 
-        model = SentenceTransformer("all-MiniLM-L6-v2")  # fast, good enough for similarity
-        embeddings = model.encode(sentences, show_progress_bar=False)
+    embeddings = np.array(vectors, dtype=np.float32)
 
-        def cosine_sim(a: np.ndarray, b: np.ndarray) -> float:
-            """Cosine similarity between two vectors."""
-            denom = (np.linalg.norm(a) * np.linalg.norm(b))
-            if denom == 0:
-                return 0.0
-            return float(np.dot(a, b) / denom)
+    # L2-normalise so dot product == cosine similarity
+    norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+    norms[norms == 0] = 1.0
+    embeddings /= norms
 
-        # 3. Group sentences: start new chunk when similarity drops below threshold
-        chunks: list[Chunk] = []
-        current_group: list[str] = [sentences[0]]
+    # 3. Group sentences: new chunk when consecutive similarity < threshold
+    chunks: list[Chunk] = []
+    current_group: list[str] = [sentences[0]]
 
-        for i in range(1, len(sentences)):
-            sim = cosine_sim(embeddings[i - 1], embeddings[i])
-            if sim < threshold:
-                # Flush current group as a chunk
-                chunks.append(Chunk(
-                    text=" ".join(current_group),
-                    metadata={**metadata, "chunk_index": len(chunks), "strategy": "semantic"}
-                ))
-                current_group = []
-            current_group.append(sentences[i])
-
-        # Don't forget the last group
-        if current_group:
+    for i in range(1, len(sentences)):
+        sim = float(np.dot(embeddings[i - 1], embeddings[i]))
+        if sim < threshold and len(current_group) >= 2:
             chunks.append(Chunk(
                 text=" ".join(current_group),
                 metadata={**metadata, "chunk_index": len(chunks), "strategy": "semantic"}
             ))
+            current_group = []
+        current_group.append(sentences[i])
 
-        return chunks
+    # Flush last group
+    if current_group:
+        chunks.append(Chunk(
+            text=" ".join(current_group),
+            metadata={**metadata, "chunk_index": len(chunks), "strategy": "semantic"}
+        ))
 
-    except ImportError:
-        # Fallback: no sentence-transformers → treat each paragraph as a chunk
-        print("  [WARNING] sentence-transformers not available. Using paragraph fallback.")
-        return [
-            Chunk(
-                text=s,
-                metadata={**metadata, "chunk_index": i, "strategy": "semantic_fallback"}
-            )
-            for i, s in enumerate(sentences)
-        ]
+    return chunks
+
+
+def _chunk_semantic_tfidf(text: str, threshold: float,
+                          metadata: dict) -> list[Chunk]:
+    """TF-IDF fallback when OpenAI API is unavailable."""
+    import numpy as np
+
+    sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+|\n\n', text) if s.strip()]
+    if not sentences:
+        return []
+
+    def tokenize(s: str) -> list[str]:
+        words = s.lower().split()
+        bigrams = [s[i:i+2] for s in words for i in range(len(s)-1)]
+        return words + bigrams
+
+    vocab: dict[str, int] = {}
+    token_lists = []
+    for sent in sentences:
+        toks = tokenize(sent)
+        token_lists.append(toks)
+        for t in toks:
+            if t not in vocab:
+                vocab[t] = len(vocab)
+
+    V, N = len(vocab), len(sentences)
+    tf = np.zeros((N, V), dtype=np.float32)
+    for i, toks in enumerate(token_lists):
+        for t in toks:
+            tf[i, vocab[t]] += 1
+        if tf[i].sum() > 0:
+            tf[i] /= tf[i].sum()
+
+    df = (tf > 0).sum(axis=0).astype(np.float32)
+    idf = np.log((N + 1) / (df + 1)) + 1.0
+    tfidf = tf * idf
+    norms = np.linalg.norm(tfidf, axis=1, keepdims=True)
+    norms[norms == 0] = 1.0
+    tfidf /= norms
+
+    effective_threshold = min(threshold, 0.15)
+    chunks: list[Chunk] = []
+    current_group = [sentences[0]]
+
+    for i in range(1, N):
+        sim = float(np.dot(tfidf[i - 1], tfidf[i]))
+        if sim < effective_threshold and len(current_group) >= 2:
+            chunks.append(Chunk(
+                text=" ".join(current_group),
+                metadata={**metadata, "chunk_index": len(chunks), "strategy": "semantic"}
+            ))
+            current_group = []
+        current_group.append(sentences[i])
+
+    if current_group:
+        chunks.append(Chunk(
+            text=" ".join(current_group),
+            metadata={**metadata, "chunk_index": len(chunks), "strategy": "semantic"}
+        ))
+
+    return chunks
 
 
 # ─── Strategy 2: Hierarchical Chunking ──────────────────
