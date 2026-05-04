@@ -1,0 +1,25 @@
+# Core
+python-dotenv
+
+# Embeddings & Reranking
+sentence-transformers
+FlagEmbedding
+
+# Vector Store
+qdrant-client
+
+# BM25
+rank-bm25
+
+# Vietnamese NLP
+underthesea
+
+# LLM
+openai
+
+# Evaluation
+ragas
+datasets
+
+# Testing
+pytest
