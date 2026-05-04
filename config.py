@@ -8,6 +8,7 @@ load_dotenv()
 # --- API Keys ---
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 COHERE_API_KEY = os.getenv("COHERE_API_KEY", "")
+LLAMA_CLOUD_API_KEY = os.getenv("LLAMA_CLOUD_API_KEY", "")
 
 # --- Qdrant ---
 QDRANT_HOST = "localhost"
