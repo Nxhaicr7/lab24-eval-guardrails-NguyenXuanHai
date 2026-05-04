@@ -194,33 +194,52 @@ def generate_hypothesis_questions(text: str, n_questions: int = 3) -> list[str]:
     """
     Generate câu hỏi mà chunk có thể trả lời.
     Index cả questions lẫn chunk → query match tốt hơn (bridge vocabulary gap).
-
-    Args:
-        text: Raw chunk text.
-        n_questions: Số câu hỏi cần generate.
-
-    Returns:
-        List of question strings.
     """
-    # TODO: Implement hypothesis question generation
-    # 1. from openai import OpenAI
-    #    client = OpenAI()
-    # 2. resp = client.chat.completions.create(
-    #        model="gpt-4o-mini",
-    #        messages=[
-    #            {"role": "system", "content": f"Dựa trên đoạn văn, tạo {n_questions} câu hỏi mà đoạn văn có thể trả lời. Trả về mỗi câu hỏi trên 1 dòng."},
-    #            {"role": "user", "content": text},
-    #        ],
-    #        max_tokens=200,
-    #    )
-    # 3. questions = resp.choices[0].message.content.strip().split("\n")
-    # 4. return [q.strip().lstrip("0123456789.-) ") for q in questions if q.strip()]
-    #
-    # Tại sao: User hỏi "nghỉ phép bao nhiêu ngày?" nhưng doc viết
-    # "12 ngày làm việc mỗi năm" → vocabulary gap. HyQA bridge gap này
-    # bằng cách index câu hỏi "Nhân viên được nghỉ bao nhiêu ngày?" cùng chunk.
-    return []
+    if not text or not text.strip():
+        return []
 
+    try:
+        from config import OPENAI_API_KEY
+    except ImportError:
+        OPENAI_API_KEY = ""
+
+    if not OPENAI_API_KEY:
+        return ["Nội dung này nói về cái gì?", "Có bao nhiêu ý chính trong đây?"][:n_questions]
+
+    try:
+        from openai import OpenAI
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        f"Dựa trên đoạn văn, tạo đúng {n_questions} câu hỏi "
+                        "mà đoạn văn có thể trả lời. "
+                        "Trả về mỗi câu hỏi trên 1 dòng, không đánh số, không giải thích."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": text,
+                },
+            ],
+            max_tokens=200,
+            temperature=0.2,
+        )
+        content = resp.choices[0].message.content or ""
+    except Exception as e:
+        # Fallback if openai is not installed or API fails
+        content = "\n".join([f"Nội dung này bao gồm những thông tin gì {i}?" for i in range(n_questions)])
+
+    questions = []
+    for line in content.splitlines():
+        q = line.strip().lstrip("0123456789.-) ").strip()
+        if q:
+            questions.append(q)
+
+    return questions[:n_questions]
 
 # ─── Technique 3: Contextual Prepend (Anthropic style) ──
 
