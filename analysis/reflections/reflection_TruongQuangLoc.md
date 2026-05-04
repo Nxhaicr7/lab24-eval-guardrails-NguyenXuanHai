@@ -1,17 +1,19 @@
 # Individual Reflection — Lab 18
 
 **Tên:** Trương Quang Lộc  
-**Module phụ trách:** M3
+**Module phụ trách:** M3 — Reranking
 
 ---
 
 ## 1. Đóng góp kỹ thuật
 
-- Module đã implement: M3 - Reranking.
+- Module đã implement: `src/m3_rerank.py` — Cross-encoder reranking pipeline
 - Các hàm/class chính đã viết:
-  - `CrossEncoderReranker.rerank()`: rerank lại danh sách document theo mức độ liên quan với query.
-  - `benchmark_reranker()`: đo `avg_ms`, `min_ms`, `max_ms` cho bước rerank.
-  - Hỗ trợ M5 với `contextual_prepend()` để thêm ngữ cảnh trước chunk khi indexing.
+  - `CrossEncoderReranker._load_model()` — lazy-load `BAAI/bge-reranker-v2-m3` qua `sentence_transformers.CrossEncoder`
+  - `CrossEncoderReranker.rerank()` — tạo query-doc pairs, chạy `model.predict()`, sort descending, trả về top-k `RerankResult`
+  - `FlashrankReranker.rerank()` — lightweight alternative dùng `flashrank`
+  - `benchmark_reranker()` — đo latency qua nhiều lần chạy, trả về `avg_ms`, `min_ms`, `max_ms`
+  - `contextual_prepend()` trong M5 — thêm ngữ cảnh ngắn vào chunk trước khi indexing
 - Số tests pass:
   - `pytest tests/test_m3.py -v` -> `5 passed`
   - `test_contextual_*` trong `tests/test_m5.py` -> `2/2 passed`
@@ -20,7 +22,7 @@
 
 ## 2. Kiến thức học được
 
-- Khái niệm mới nhất: Tôi hiểu rõ hơn vai trò của reranker trong pipeline RAG, đặc biệt là việc sắp xếp lại kết quả sau retrieval để tăng chất lượng context đưa vào bước answer generation.
+- Khái niệm mới nhất: Cross-encoder reranking — khác bi-encoder ở chỗ nhận đồng thời cả query lẫn document vào một forward pass, cho độ chính xác cao hơn nhưng chậm hơn bi-encoder.
 - Điều bất ngờ nhất: Nếu retrieval ban đầu kéo về nhiều chunk gần đúng nhưng còn nhiễu, chỉ cần reranking tốt hơn cũng có thể cải thiện đáng kể đầu vào của mô hình trả lời.
 - Kết nối với bài giảng: Phần M3 gắn trực tiếp với ý tưởng “retrieve nhiều rồi lọc lại” trong production RAG, giúp precision tốt hơn so với chỉ lấy top-k retrieval thô.
 
@@ -45,7 +47,7 @@
 
 | Tiêu chí | Tự chấm (1-5) |
 |----------|---------------|
-| Hiểu bài giảng | 5 |
+| Hiểu bài giảng | 4 |
 | Code quality | 4 |
-| Teamwork | 5 |
-| Problem solving | 4 |
+| Teamwork | 4 |
+| Problem solving | 5 |
