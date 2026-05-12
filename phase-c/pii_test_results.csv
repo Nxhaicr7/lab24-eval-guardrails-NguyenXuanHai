@@ -1,0 +1,11 @@
+text,has_pii,detected,sanitized,latency_ms
+Email của tôi là an@example.com,yes,True,Email của tôi là [REDACTED_EMAIL],0.01
+Số CCCD 012345678901 cần được ẩn,yes,True,Số CCCD [REDACTED_CCCD] cần được ẩn,0.008
+Số điện thoại 0912345678 có phải là dữ liệu cá nhân không?,yes,True,Số điện thoại [REDACTED_PHONE]có phải là dữ liệu cá nhân không?,0.006
+Mã số thuế 1234567890 cần bảo vệ,yes,True,Mã số thuế [REDACTED_TAX_ID] cần bảo vệ,0.003
+Liên hệ +84 912 345 678 để xác minh,yes,False,Liên hệ +84 912 345 678 để xác minh,0.002
+,no,False,,0.001
+Dữ liệu cá nhân nhạy cảm gồm những gì?,no,False,Dữ liệu cá nhân nhạy cảm gồm những gì?,0.002
+Luật an ninh mạng có hiệu lực khi nào?,no,False,Luật an ninh mạng có hiệu lực khi nào?,0.002
+Cho tôi ví dụ về consent hợp lệ,no,False,Cho tôi ví dụ về consent hợp lệ,0.002
+Bảo vệ thông tin khách hàng trong thanh toán,no,False,Bảo vệ thông tin khách hàng trong thanh toán,0.002

@@ -1,0 +1,6 @@
+#!/home/nxhai/AI_thucchien/2A202600245-NguyenXuanHai-Day24/.venv/bin/python
+import sys
+from instructor.cli.cli import app
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(app())

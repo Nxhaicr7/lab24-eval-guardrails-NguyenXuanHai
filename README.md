@@ -1,105 +1,63 @@
-# Lab 18: Production RAG Pipeline
+# Lab 24 - Full Evaluation & Guardrail System
 
-**AICB-P2T3 · Ngày 18 · Production RAG**  
-**Giảng viên:** M.Sc Trần Minh Tú · **Thời gian:** 2 giờ
+## Overview
 
----
+This repository packages a complete Lab 24 submission around an existing Vietnamese legal RAG corpus. The deliverables cover four layers: automated evaluation with a curated synthetic test set, LLM-as-judge style comparison and calibration, guardrails for both input and output, and a production blueprint with SLOs, incident handling, and cost planning. The implementation is intentionally offline-friendly: where external APIs are unavailable, the scripts fall back to deterministic lexical scoring and rule-based safety checks so the repo still produces the required artifacts end-to-end.
 
-## Tổng quan
+The corpus focuses on data privacy, cybersecurity, and legal compliance documents in Vietnamese. The resulting stack demonstrates how to measure answer quality, identify failure clusters, compare answer variants, block prompt-injection-like traffic, redact PII, and benchmark latency across the full path. This keeps the submission reproducible while staying close to the production framing of the lab.
 
-Lab gồm **2 phần**:
-
-| Phần | Hình thức | Thời gian | Mô tả |
-|------|-----------|-----------|-------|
-| **Phần A** | Cá nhân | 1.5 giờ | Implement 1 trong 4 modules |
-| **Phần B** | Nhóm (3–4 người) | 30 phút | Ghép modules → full pipeline → eval → present |
-
-```
-  Cá nhân                         Nhóm
-  ┌────────────┐
-  │ M1 Chunking│──┐
-  ├────────────┤  │    ┌──────────────────────────────┐
-  │ M2 Search  │──┼───▶│  Production RAG System        │
-  ├────────────┤  │    │  pipeline.py + RAGAS eval     │
-  │ M3 Rerank  │──┤    │  + failure analysis           │
-  ├────────────┤  │    └──────────────────────────────┘
-  │ M4 Eval    │──┘
-  └────────────┘
-```
-
-## Quick Start
+## Setup
 
 ```bash
-git clone <repo-url> && cd lab18-production-rag
-docker compose up -d                    # Qdrant
-pip install -r requirements.txt
-cp .env.example .env                    # Điền API keys
-python naive_baseline.py                # ⚠️ Chạy TRƯỚC để có baseline
+python3 -m venv .venv
+./.venv/bin/pip install -r requirements.txt
 ```
 
-## Chạy toàn bộ
+Optional environment variables:
 
 ```bash
-python main.py                          # Naive + Production + So sánh
-python check_lab.py                     # Kiểm tra trước khi nộp
+export OPENAI_API_KEY=...
+export GROQ_API_KEY=...
 ```
 
-## Cấu trúc repo
+## Run
 
-```
-lab18-production-rag/
-├── README.md                   # File này
-├── ASSIGNMENT_INDIVIDUAL.md    # ★ Đề bài cá nhân (Phần A)
-├── ASSIGNMENT_GROUP.md         # ★ Đề bài nhóm (Phần B)
-├── RUBRIC.md                   # Hệ thống chấm điểm chi tiết
-│
-├── main.py                     # Entry point: chạy toàn bộ pipeline
-├── check_lab.py                # Kiểm tra định dạng trước khi nộp
-├── naive_baseline.py           # Baseline (chạy trước)
-├── config.py                   # Shared config
-├── requirements.txt            # Dependencies (pinned)
-├── docker-compose.yml          # Qdrant local
-├── .env.example                # API keys template
-│
-├── data/                       # Sample corpus tiếng Việt
-│   ├── sample_01.md
-│   ├── sample_02.md
-│   └── sample_03.md
-├── test_set.json               # 20 Q&A pairs
-│
-├── src/                        # ★ Scaffold code (có TODO markers)
-│   ├── m1_chunking.py          # Module 1: Chunking
-│   ├── m2_search.py            # Module 2: Hybrid Search
-│   ├── m3_rerank.py            # Module 3: Reranking
-│   ├── m4_eval.py              # Module 4: Evaluation
-│   └── pipeline.py             # Ghép nhóm
-│
-├── tests/                      # Auto-grading
-│   ├── test_m1.py
-│   ├── test_m2.py
-│   ├── test_m3.py
-│   └── test_m4.py
-│
-├── analysis/                   # ★ Deliverable
-│   ├── failure_analysis.md     # Phân tích failures (nhóm)
-│   ├── group_report.md         # Báo cáo nhóm
-│   └── reflections/            # Reflection cá nhân
-│       └── reflection_TEMPLATE.md
-│
-├── reports/                    # ★ Auto-generated (sau khi chạy main.py)
-│   ├── ragas_report.json
-│   └── naive_baseline_report.json
-│
-└── templates/                  # Templates gốc (backup)
-    ├── failure_analysis.md
-    └── group_report.md
+```bash
+./.venv/bin/python phase-a/run_eval.py
+./.venv/bin/python phase-b/run_judge.py
+./.venv/bin/python phase-c/full_pipeline.py
+./.venv/bin/python check_lab24.py
 ```
 
-## Timeline
+## Results Summary
 
-| Thời gian | Hoạt động |
-|-----------|-----------|
-| 0:00–0:15 | Setup + chạy `naive_baseline.py` |
-| 0:15–1:45 | **Phần A (cá nhân):** implement module → `pytest tests/test_m*.py` |
-| 1:45–2:15 | **Phần B (nhóm):** ghép → `python src/pipeline.py` → failure analysis |
-| 2:15–2:30 | Presentation 5 phút/nhóm |
+### Phase A
+
+- Test set: 50 questions with curated `simple`, `reasoning`, and `multi_context` coverage
+- Outputs: `phase-a/testset_v1.csv`, `phase-a/ragas_results.csv`, `phase-a/ragas_summary.json`
+- Failure analysis: `phase-a/failure_analysis.md`
+- Scores: Faithfulness `0.4469`, Answer Relevancy `0.6353`, Context Precision `0.1252`, Context Recall `0.4145`
+- Observation: low `faithfulness`, `context_precision`, and `context_recall` indicate retrieval/context packaging is currently the main bottleneck, especially for reasoning and multi-context questions.
+
+### Phase B
+
+- Pairwise judging with swap-and-average mitigation across 30 questions
+- Outputs: `phase-b/pairwise_results.csv`, `phase-b/absolute_scores.csv`, `phase-b/human_labels.csv`
+- Calibration and bias notes: `phase-b/kappa_analysis_output.md`, `phase-b/judge_bias_report.md`
+- Cohen's kappa on the 10-sample calibration set: `1.0`
+
+### Phase C
+
+- Input guardrails: PII redaction, topic validation, injection detection
+- Output guardrail: rule-based safety classifier shaped like a Llama Guard layer
+- Benchmark outputs: `phase-c/pii_test_results.csv`, `phase-c/adversarial_test_results.csv`, `phase-c/latency_benchmark.csv`
+- PII recall: `0.80`, adversarial detection: `0.95`, unsafe-output detection: `0.80`, false positive rate: `0.00`
+- Latency: P50 `0.033 ms`, P95 `0.109 ms`, P99 `0.131 ms`
+
+### Phase D
+
+- Production blueprint: `phase-d/blueprint.md`
+
+## Demo Video
+
+Add `demo/demo-video.mp4` or a YouTube link here before final submission.

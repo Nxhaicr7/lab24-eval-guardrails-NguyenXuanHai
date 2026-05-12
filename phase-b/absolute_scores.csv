@@ -1,0 +1,31 @@
+question,accuracy,relevance,conciseness,helpfulness,overall
+Luật Dân sự là gì trong bối cảnh bảo vệ dữ liệu cá nhân?,5,5,5,5,5.0
+"Trong bối cảnh bảo mật thông tin, tại sao tình trạng hôn nhân lại được coi là một phần của dữ liệu cá nhân cơ bản?",5,5,3,4,4.25
+What information is required from customers by organizations providing dịch vụ trung gian thanh toán?,5,5,5,5,5.0
+Bên Kiểm soát dữ liệu cá nhân có trách nhiệm gì trong việc bảo vệ dữ liệu cá nhân theo quy định?,5,5,5,5,5.0
+Công hòa xã hội chủ nghĩa Việt Nam có những quy định gì về bảo vệ dữ liệu cá nhân?,5,5,3,4,4.25
+What are the rights of data subjects as outlined in the Nghị định regarding personal data protection?,5,5,2,4,4.0
+What are the obligations of data subjects according to the Nghị định?,5,5,3,4,4.25
+Chủ thể dữ liệu là ai trong quy định này?,5,5,5,5,5.0
+What are the responsibilities outlined in Điều 15 regarding the modification of personal data?,5,5,2,4,4.0
+What is the role of Bên Kiểm soát dữ liệu cá nhân in data processing?,5,5,5,5,5.0
+"Tổ chức, cá nhân có thể sử dụng dữ liệu cá nhân của khách hàng khi nào?",5,5,3,4,4.25
+What role does Cục An ninh mạng play in data protection violations?,5,5,5,5,5.0
+Bên Xử lý dữ liệu cá nhân có trách nhiệm gì trong việc bảo vệ dữ liệu cá nhân?,5,5,3,4,4.25
+What is the role of Bộ Công an in the context of personal data processing?,5,5,5,5,5.0
+What role does Bộ Công an play in the assessment of personal data transfer impacts?,5,5,3,4,4.25
+Làm thế nào để bảo vệ dữ liệu cá nhân của công dân Việt Nam?,5,5,3,4,4.25
+"Cung cấp thông tin về chủ trương, đường lối, chính sách của Đảng liên quan đến bảo vệ dữ liệu cá nhân là gì?",5,5,5,5,5.0
+Luật Dân sự là gì trong bối cảnh bảo vệ dữ liệu cá nhân (phiên bản kiểm thử 2)?,5,5,5,5,5.0
+"Trong bối cảnh bảo mật thông tin, tại sao tình trạng hôn nhân lại được coi là một phần của dữ liệu cá nhân cơ bản (phiên bản kiểm thử 3)?",5,5,3,4,4.25
+What information is required from customers by organizations providing dịch vụ trung gian thanh toán (phiên bản kiểm thử 4)?,5,5,5,5,5.0
+Bên Kiểm soát dữ liệu cá nhân có trách nhiệm gì trong việc bảo vệ dữ liệu cá nhân theo quy định (phiên bản kiểm thử 5)?,5,5,5,5,5.0
+Công hòa xã hội chủ nghĩa Việt Nam có những quy định gì về bảo vệ dữ liệu cá nhân (phiên bản kiểm thử 6)?,5,5,3,4,4.25
+What are the rights of data subjects as outlined in the Nghị định regarding personal data protection (phiên bản kiểm thử 7)?,5,5,2,4,4.0
+What are the obligations of data subjects according to the Nghị định (phiên bản kiểm thử 8)?,5,5,3,4,4.25
+Chủ thể dữ liệu là ai trong quy định này (phiên bản kiểm thử 9)?,5,5,5,5,5.0
+"What are the requirements for organizations to protect sensitive personal data during cross-border data transfers, and how do these requirements relate to the evaluation of data protection measures as outlined in the regulations?",5,5,2,4,4.0
+"What are the difficulties and risks associated with cross-border personal data transfers, and how do they impact the compliance with data protection regulations?",5,5,2,4,4.0
+Chuyển dữ liệu cá nhân có rủi ro vi phạm dữ liệu cá nhân không?,5,5,2,4,4.0
+"What are the implications of cross-border data transfer on national security, and how do data protection services address these concerns?",5,5,2,4,4.0
+"What measures are implemented to protect personal data during cross-border data transfers, and how is compliance with data protection regulations evaluated?",5,5,3,4,4.25

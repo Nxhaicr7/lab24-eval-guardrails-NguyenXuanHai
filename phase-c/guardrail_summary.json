@@ -1,0 +1,14 @@
+{
+  "pii_recall": 0.8,
+  "pii_p95_ms": 0.009,
+  "topic_accuracy_note": "Keyword-based validator; in-scope queries pass, clearly unrelated queries refuse.",
+  "adversarial_detection_rate": 0.95,
+  "output_unsafe_detection_rate": 0.8,
+  "output_false_positive_rate": 0.0,
+  "output_p95_ms": 0.003,
+  "latency_p50_ms": 0.033,
+  "latency_p95_ms": 0.109,
+  "latency_p99_ms": 0.131,
+  "l1_p95_ms": 0.064,
+  "l3_p95_ms": 0.01
+}

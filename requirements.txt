@@ -1,25 +1,10 @@
-# Core
-python-dotenv
-
-# Embeddings & Reranking
-sentence-transformers
-FlagEmbedding
-
-# Vector Store
-qdrant-client
-
-# BM25
-rank-bm25
-
-# Vietnamese NLP
-underthesea
-
-# LLM
-openai
-
-# Evaluation
-ragas
-datasets
-
-# Testing
-pytest
+python-dotenv==1.2.2
+openai==2.36.0
+datasets==4.8.5
+ragas==0.4.3
+guardrails-ai==0.10.0
+presidio_analyzer==2.2.362
+presidio_anonymizer==2.2.362
+transformers==5.8.0
+pandas==3.0.3
+pytest==8.4.2
