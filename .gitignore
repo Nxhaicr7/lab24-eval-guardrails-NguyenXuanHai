@@ -1,9 +1,51 @@
+# Python env / secrets
+.venv/
 venv/
 .env
+
+# OS / editor noise
 .DS_Store
+*.swp
+*.swo
+*.tmp
+.~lock*
+
+# Python caches
 __pycache__/
 *.pyc
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Vector DB / local data
 qdrant_data/
+
+# Packaging / build
 *.egg-info/
+
+# Old lab reports folder (not Lab 24 phases)
 reports/*.json
+
+# Keep the submission repo minimal (Lab 24)
+analysis/
+templates/
+tests/
+chunks/
+data/
+docs/
+reports/
+lab24-student-edition.pdf
+test_set.json
+testset_v1.csv
+testset_review_notes.md
+ASSIGNMENT_*.md
+RUBRIC.md
+CLAUDE.md
+check_lab.py
+main.py
+naive_baseline.py
+ocr_pdfs.py
+run_chunking.py
+generate_testset.py
+config.py
