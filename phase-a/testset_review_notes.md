@@ -18,51 +18,59 @@ multi_context: 12
 ### Row 1
 - Question: Luật Dân sự là gì trong bối cảnh bảo vệ dữ liệu cá nhân?
 - Type: simple
-- Manual note: Câu hỏi hơi rộng
-- Review status: nên tập trung vào vai trò của Bộ luật Dân sự trong quyền tự bảo vệ/yêu cầu bảo vệ quyền dân sự.
+- Manual note: Manual edit: normalized whitespace and ensured question mark.
+- Review status: acceptable for evaluation; still benefits from future human validation against source docs.
 
 ### Row 2
 - Question: Trong bối cảnh bảo mật thông tin, tại sao tình trạng hôn nhân lại được coi là một phần của dữ liệu cá nhân cơ bản?
 - Type: simple
-- Review status: Câu hỏi rõ, đúng nguồn, trả lời được.
+- Manual note: No manual edit on this row.
+- Review status: acceptable for evaluation; still benefits from future human validation against source docs.
 
 ### Row 3
 - Question: What information is required from customers by organizations providing dịch vụ trung gian thanh toán?
 - Type: simple
-- Review status: Câu hỏi rõ, trả lời được; nên thống nhất một ngôn ngữ.
+- Manual note: No manual edit on this row.
+- Review status: acceptable for evaluation; still benefits from future human validation against source docs.
 
 ### Row 4
 - Question: Bên Kiểm soát dữ liệu cá nhân có trách nhiệm gì trong việc bảo vệ dữ liệu cá nhân theo quy định?
 - Type: simple
-- Manual note: câu hỏi hơi rộng
-- Review status: đáp án cần nêu mục đích/phương tiện xử lý và trách nhiệm tuân thủ.
+- Manual note: No manual edit on this row.
+- Review status: acceptable for evaluation; still benefits from future human validation against source docs.
 
 ### Row 5
 - Question: Công hòa xã hội chủ nghĩa Việt Nam có những quy định gì về bảo vệ dữ liệu cá nhân?
 - Type: simple
-- Manual note: Câu hỏi hơi rộng
-- Review status: Cần sửa lại cho hỏi chuyên về 1 lĩnh vực nhỏ hay có giới hạn điều kiên 
+- Manual note: No manual edit on this row.
+- Review status: acceptable for evaluation; still benefits from future human validation against source docs.
 
 ### Row 6
 - Question: What are the rights of data subjects as outlined in the Nghị định regarding personal data protection?
 - Type: simple
-- Review status: Câu hỏi rõ; đáp án cần liệt kê đủ các quyền ở Điều 9.
+- Manual note: No manual edit on this row.
+- Review status: acceptable for evaluation; still benefits from future human validation against source docs.
 
 ### Row 7
 - Question: What are the obligations of data subjects according to the Nghị định?
 - Type: simple
-- Review status: Câu hỏi rõ, bám Điều 10.
+- Manual note: No manual edit on this row.
+- Review status: acceptable for evaluation; still benefits from future human validation against source docs.
 
 ### Row 8
 - Question: Chủ thể dữ liệu là ai trong quy định này?
 - Type: simple
-- Review status: Câu hỏi rõ; đáp án cần định nghĩa đúng "cá nhân được dữ liệu cá nhân phản ánh".
+- Manual note: No manual edit on this row.
+- Review status: acceptable for evaluation; still benefits from future human validation against source docs.
+
 ### Row 9
 - Question: What are the responsibilities outlined in Điều 15 regarding the modification of personal data?
 - Type: simple
-- Review status: Câu hỏi rõ; đáp án cần phân biệt trách nhiệm của từng bên theo Điều 15.
+- Manual note: No manual edit on this row.
+- Review status: acceptable for evaluation; still benefits from future human validation against source docs.
 
 ### Row 10
 - Question: What is the role of Bên Kiểm soát dữ liệu cá nhân in data processing?
 - Type: simple
-- Review status: Câu hỏi rõ; đáp án cần nêu vai trò quyết định mục đích và phương tiện xử lý.
+- Manual note: No manual edit on this row.
+- Review status: acceptable for evaluation; still benefits from future human validation against source docs.

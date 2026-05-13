@@ -1,0 +1,83 @@
+Xin chào các thầy cô trường VinUni
+Em là Nguyễn Xuân Hải. Đây là Lab 24 — Full Evaluation & Guardrail System cho RAG tài liệu pháp lý tiếng Việt. Video này gồm 4 phần theo yêu cầu: Phase A RAGAS, Phase B LLM-as-Judge, Phase C Guardrails, và benchmark latency.
+(1) Phase A — RAGAS chạy live trên 5 questions
+Đầu tiên là Phase A: Em chạy pipeline eval và xuất ra ragas_results.csv và ragas_summary.json. 4 metric gồm: Faithfulness, Answer Relevancy, Context Precision, Context Recall.
+
+        ./.venv/bin/python phase-a/run_eval.py
+
+
+Mở phase-a/ragas_summary.json
+“Faithfulness: mức độ câu trả lời bám vào context, tránh hallucination.”
+“Answer Relevancy: câu trả lời có trả lời đúng câu hỏi hay không.”
+“Context Precision: context retrieve có ‘nhiễu’ hay không (phần đúng / tổng context).”
+“Context Recall: context có đủ bao phủ ground truth không.”
+
+“Mình có failure analysis theo cụm lỗi trong phase-a/failure_analysis.md.”
+
+phase-a/failure_analysis.md (lướt thấy bảng Bottom 10 + 2 clusters)
+
+Nhận xét:
+- Faithfulness = 0.4469, Answer Relevancy = 0.6353, Context Precision = 0.1252, Context Recall = 0.4145.
+- Điểm thấp nhất là Context Precision/Recall: cho thấy retrieval/context packaging đang là bottleneck chính.
+- Failure clusters:
+  - C1 (Reasoning compression): câu hỏi reasoning bị “nén” vì answer ngắn (cắt theo 1 câu), nên mất thông tin.
+  - C2 (Context precision drift): multi-context kéo nhiều đoạn rộng => nhiều noise làm precision giảm.
+
+(2) Phase B — LLM-as-Judge so sánh 2 versions
+“Phase B: Em chạy pairwise judge để so sánh 2 phiên bản answer, có swap-and-average để giảm position bias. Đồng thời có absolute scoring theo rubric và human calibration để tính Cohen’s kappa.”
+
+        ./.venv/bin/python phase-b/run_judge.py
+phase-b/pairwise_results.csv
+“Ở đây có run1_winner, run2_winner (khi đảo vị trí A/B), và winner_after_swap là kết quả sau khi swap-and-average để giảm bias.”
+
+
+phase-b/kappa_analysis_output.md
+“Kappa cho thấy mức độ đồng thuận giữa judge và human labels.”
+
+Nhận xét :
+- Cohen’s kappa (10 mẫu) = 1.0.
+- Position sensitivity = 0% (đảo A/B không đổi winner trong dataset này).
+- Length bias: answer B dài hơn thì thắng 100% các case (vì B được tạo “đầy đủ hơn” cho reasoning/multi-context).
+- Tie rate sau swap-and-average ~ 73%.
+
+(3) Phase C — Guardrails & adversarial test (3 attacks)
+“Phase C: Em dựng guardrail stack gồm Input guard (PII redaction + topic validator + injection detection) và Output guard (kiểm tra an toàn đầu ra). Sau đó Em chạy adversarial test 20 case và ghi kết quả ra CSV.”
+        ./.venv/bin/python phase-c/full_pipeline.py
+
+phase-c/adversarial_test_results.csv
+Chọn và highlight 3 dòng:
+
+1 dòng DAN hoặc jailbreak
+1 dòng roleplay/“ignore instructions”
+1 dòng liên quan PII (nếu không có trong adversarial thì mở pii_test_results.csv)
+“Ở cột blocked và reason cho thấy guardrail đã chặn prompt injection / out-of-scope / PII theo rule.”
+
+phase-c/pii_test_results.csv và chỉ cột sanitized có [REDACTED_*]
+
+Nhận xét (đọc ngắn, dựa trên output):
+- Adversarial detection rate = 0.95 (19/20).
+- PII recall = 0.80 (ưu tiên demo redaction trực quan trong cột sanitized).
+- Output guard: unsafe detection rate = 0.80, false positive rate = 0.00.
+
+(4) Latency benchmark P50/P95/P99
+“Cuối cùng là benchmark latency end-to-end. Em chạy 100 requests, xuất latency_benchmark.csv và summary P50/P95/P99.”
+
+phase-c/guardrail_summary.json
+
+“P50 là …”
+“P95 là …”
+“P99 là …”
+
+Nhận xét:
+- P50 = 0.093 ms, P95 = 0.192 ms, P99 = 0.225 ms (benchmark 100 requests).
+- L1 P95 = 0.121 ms, L3 P95 = 0.022 ms.
+
+phase-d/blueprint.md
+“Phase D: blueprint gồm SLO, sơ đồ kiến trúc 4 lớp, playbook 3 incident, và cost projection hàng tháng.”
+
+----------------------------------------Lời kết cho video ------------------------------------------------
+“Repo có đầy đủ Phase A đến D, workflow CI eval-gate.yml, và blueprint trong phase-d/blueprint.md. Cảm ơn mọi người đã xem hết video ạ.”
+
+
+
+

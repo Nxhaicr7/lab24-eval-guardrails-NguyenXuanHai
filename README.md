@@ -56,8 +56,11 @@ export GROQ_API_KEY=...
 
 ### Phase D
 
-- Production blueprint: `phase-d/blueprint.md`
+- Blueprint: `phase-d/blueprint.md`
+- Contents: SLO definitions + 4-layer architecture diagram + alert playbook (incidents) + monthly cost projection
 
 ## Demo Video
 
-Add `demo/demo-video.mp4` or a YouTube link here before final submission.
+YouTube (unlisted): `https://youtu.be/sLr3B-VQsGw?si=OHDfF1XJ7wpa5ePC`
+
+Notes used while recording: `demo/senorio.txt`

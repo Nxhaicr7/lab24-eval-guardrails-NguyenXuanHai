@@ -17,35 +17,24 @@
 
 ## Clusters Identified
 
-### Cụm C1: Lỗi nén thông tin trong câu hỏi suy luận
+### Cluster C1: Reasoning compression failures
 
-**Mẫu lỗi:**  
-Các câu hỏi cần tổng hợp và suy luận bị mất nhiều chi tiết vì bộ sinh câu trả lời rút gọn ground truth thành phần tóm tắt ngắn, thường chỉ dựa trên câu đầu tiên. Do đó, câu trả lời không bao phủ đủ các ý cần thiết, đặc biệt với các câu hỏi yêu cầu liên kết nhiều khía cạnh như an ninh quốc gia, chuyển dữ liệu xuyên biên giới, biện pháp bảo vệ và đánh giá tuân thủ.
+**Pattern:** Questions needing synthesis lose detail because the answer generator truncates the ground truth to a shorter first-sentence summary.
+**Examples:**
+- What are the implications of cross-border data transfer on national security, and how do data protection services address these concerns?
+- What are the implications of cross-border data transfer on national security, particularly in relation to the measures for data protection services?
+- What measures are implemented to protect personal data during cross-border data transfers, and how is compliance with data protection regulations evaluated?
+**Proposed fix:**
+- Increase answer synthesis depth for `reasoning` questions.
+- Retrieve 2-3 supporting contexts instead of 1 for reasoning prompts.
 
-**Ví dụ:**
-- Việc chuyển dữ liệu xuyên biên giới có tác động gì đến an ninh quốc gia, và các dịch vụ bảo vệ dữ liệu giải quyết những lo ngại này như thế nào?
-- Việc chuyển dữ liệu xuyên biên giới có tác động gì đến an ninh quốc gia, đặc biệt liên quan đến các biện pháp dành cho dịch vụ bảo vệ dữ liệu?
-- Những biện pháp nào được áp dụng để bảo vệ dữ liệu cá nhân trong quá trình chuyển dữ liệu xuyên biên giới, và việc tuân thủ quy định bảo vệ dữ liệu được đánh giá như thế nào?
+### Cluster C2: Context precision drift on multi-context items
 
-**Đề xuất khắc phục:**
-- Tăng độ sâu của bước tổng hợp câu trả lời cho các câu hỏi loại `reasoning`.
-- Truy xuất từ 2 đến 3 ngữ cảnh hỗ trợ thay vì chỉ 1 ngữ cảnh đối với các prompt suy luận.
-- Yêu cầu bộ sinh câu trả lời bao phủ đủ các phần của câu hỏi, không chỉ tóm tắt câu đầu tiên.
-- Thêm bước kiểm tra sau sinh để đảm bảo câu trả lời có đủ các ý chính: tác động, rủi ro, biện pháp xử lý và cách đánh giá tuân thủ.
-
-### Cụm C2: Trôi độ chính xác ngữ cảnh ở câu hỏi đa ngữ cảnh
-
-**Mẫu lỗi:**  
-Các câu hỏi loại `multi_context` thường sử dụng nhiều đoạn ngữ cảnh rộng. Khi đưa nhiều passage vào cùng lúc, các token nhiễu làm giảm độ chính xác ngữ cảnh, dù câu trả lời vẫn có thể đúng về hướng tổng quát. Vấn đề chính không hẳn là câu trả lời hoàn toàn sai, mà là ngữ cảnh được chọn chưa đủ tập trung vào phần cần trả lời.
-
-**Ví dụ:**
-- Các tổ chức có trách nhiệm gì theo pháp luật về quản lý và bảo vệ dữ liệu cá nhân trên không gian mạng, đặc biệt liên quan đến an ninh quốc gia?
-- Các tổ chức có trách nhiệm gì trong việc bảo vệ dữ liệu cá nhân trong bối cảnh quy định an ninh mạng, và các trách nhiệm này liên hệ như thế nào với các quy định chung trong luật an ninh mạng?
-- Định nghĩa và hệ quả của dữ liệu cá nhân theo quy định là gì, và chúng liên quan như thế nào đến việc đánh giá các biện pháp bảo vệ dữ liệu cá nhân nhạy cảm?
-
-**Đề xuất khắc phục:**
-- Thêm bộ reranker hoặc bộ lọc metadata trước khi đưa nhiều ngữ cảnh vào bước sinh câu trả lời.
-- Giảm kích thước chunk hoặc nén ngữ cảnh trước khi trả lời cuối cùng.
-- Tách câu hỏi đa ngữ cảnh thành các truy vấn con, sau đó tổng hợp lại câu trả lời.
-- Ưu tiên các đoạn nguồn có điều khoản, định nghĩa hoặc trách nhiệm trực tiếp thay vì các đoạn mô tả chung.
-- Loại bỏ các đoạn ngữ cảnh có mức liên quan thấp để cải thiện chỉ số context precision.
+**Pattern:** Multi-context questions carry broader passages, so noisy tokens reduce precision even when the answer remains directionally correct.
+**Examples:**
+- What responsibilities do organizations have under the law regarding the management and protection of personal data in cyberspace, particularly in relation to national security?
+- What are the responsibilities of organizations regarding the protection of personal data in the context of cybersecurity regulations, and how do these responsibilities relate to the general provisions outlined in the cybersecurity law?
+- What are the definitions and implications of personal data as outlined in the regulations, and how do they relate to the assessment of data protection measures for sensitive personal data?
+**Proposed fix:**
+- Add a reranker or metadata filter before passing multiple contexts to generation.
+- Reduce chunk size or compress contexts before final answering.

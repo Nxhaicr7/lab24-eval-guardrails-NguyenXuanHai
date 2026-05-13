@@ -123,8 +123,21 @@ def parse_contexts(value: str | list[str] | None) -> list[str]:
 
 
 def load_rows(path: Path) -> list[dict[str, str]]:
-    with path.open(encoding="utf-8") as handle:
-        return list(csv.DictReader(handle))
+    with path.open(encoding="utf-8", errors="replace") as handle:
+        reader = csv.DictReader(handle)
+        rows = []
+        for row in reader:
+            if not row:
+                continue
+            # Some CSV writers (Excel/LibreOffice) may include a UTF-8 BOM in the first column name.
+            bom_keys = [key for key in row.keys() if key and key.startswith("\ufeff")]
+            for key in bom_keys:
+                normalized = key.lstrip("\ufeff")
+                if normalized and normalized not in row:
+                    row[normalized] = row.get(key, "")
+                row.pop(key, None)
+            rows.append(row)
+        return rows
 
 
 def save_csv(path: Path, rows: Iterable[dict], fieldnames: list[str]) -> None:
